@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
                     IOTDevice iot = (IOTDevice)s;
                     _iots.add(iot);
                     addIOTTOPrefs();
-                    loadIOTSToLayout();
+                    loadIOTToLayout(iot);
                 }
             }
         }
@@ -77,7 +77,8 @@ public class MainActivity extends AppCompatActivity {
     private void getIOTFromPrefs(){
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         try {
-            _iots = (ArrayList<IOTDevice>)ObjectSerializer.deserialize(prefs.getString("iots", ObjectSerializer.serialize(new ArrayList<IOTDevice>())));
+            String aaa = prefs.getString("iots", ObjectSerializer.serialize(new ArrayList<IOTDevice>()));
+            _iots = (ArrayList<IOTDevice>)ObjectSerializer.deserialize(aaa);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
@@ -87,91 +88,99 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadIOTSToLayout(){
         for(final IOTDevice iot : _iots){
-            RequestQueue queue = Volley.newRequestQueue(this);
-            final TextView stateView = new TextView(this);
-
-            queue.add(new StringRequest(Request.Method.GET, "http://" + iot.getIP() + "/get", new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    int val = Integer.parseInt(response);
-                    switch (val){
-                        case 0:
-                            stateView.setText("OFF");
-                            break;
-                        case 1:
-                            stateView.setText("ON");
-                            break;
-                        case -1:
-                            stateView.setText("AUTO");
-                            break;
-                        default:
-
-                    }
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    stateView.setText("ERROR");
-                    Log.d("LOL", error.toString());
-                }
-            }));
-
-
-
-            LinearLayout elem = new LinearLayout(this);
-            elem.setOrientation(LinearLayout.HORIZONTAL);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            elem.setLayoutParams(params);
-            TextView name = new TextView(this);
-            name.setText(iot.getName());
-            Button btnOn = new Button(this);
-            btnOn.setText("ON");
-            btnOn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    request(iot.getIP(), 1);
-                }
-            });
-
-            Button btnOff = new Button(this);
-            btnOff.setText("OFF");
-            btnOff.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    request(iot.getIP(), 0);
-                }
-            });
-
-            Button btnAuto = new Button(this);
-            btnAuto.setText("AUTO");
-            btnAuto.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    request(iot.getIP(), -1);
-                }
-            });
-
-            elem.addView(name);
-            elem.addView(btnOn);
-            elem.addView(btnOff);
-            elem.addView(btnAuto);
-            elem.addView(stateView);
-            _iotsLayout.addView(elem);
-
+            loadIOTToLayout(iot);
         }
     }
 
-    private void request(String ip, final int value){
+    private void loadIOTToLayout(final IOTDevice iot){
         RequestQueue queue = Volley.newRequestQueue(this);
-        queue.add(new StringRequest(Request.Method.POST, "http://" + ip + "/set", new Response.Listener<String>() {
+        final TextView stateView = new TextView(this);
+
+        queue.add(new StringRequest(Request.Method.GET, "http://" + iot.getIP() + "/get", new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-
+                stateView.setText(getTextfromId(Integer.parseInt(response)));
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                stateView.setText("ERROR");
+            }
+        }));
 
+        LinearLayout elem = new LinearLayout(this);
+        elem.setOrientation(LinearLayout.HORIZONTAL);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        elem.setLayoutParams(params);
+        TextView name = new TextView(this);
+        name.setText(iot.getName());
+        final Button btnOn = new Button(this);
+        final Button btnOff = new Button(this);
+        final Button btnAuto = new Button(this);
+        btnOn.setText("ON");
+        btnOff.setText("OFF");
+        btnAuto.setText("AUTO");
+
+        btnOn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                request(iot.getIP(), 1, btnOn, btnOff, btnAuto, stateView);
+            }
+        });
+        btnOff.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                request(iot.getIP(), 0, btnOn, btnOff, btnAuto, stateView);
+            }
+        });
+        btnAuto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                request(iot.getIP(), -1, btnOn, btnOff, btnAuto, stateView);
+            }
+        });
+
+        elem.addView(name);
+        elem.addView(btnOn);
+        elem.addView(btnOff);
+        elem.addView(btnAuto);
+        elem.addView(stateView);
+        _iotsLayout.addView(elem);
+    }
+
+    private static String getTextfromId(int val){
+        switch (val){
+            case 0:
+                return "OFF";
+            case 1:
+                return "ON";
+            case -1:
+                return "AUTO";
+            default:
+                return "ERROR";
+        }
+    }
+
+    private void request(String ip, final int value, final Button btnOn, final Button btnOff, final Button btnAuto, final TextView stateView){
+        btnOn.setEnabled(false);
+        btnOff.setEnabled(false);
+        btnAuto.setEnabled(false);
+        RequestQueue queue = Volley.newRequestQueue(this);
+        queue.add(new StringRequest(Request.Method.POST, "http://" + ip + "/set", new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                btnOn.setEnabled(true);
+                btnOff.setEnabled(true);
+                btnAuto.setEnabled(true);
+                stateView.setText(getTextfromId(value));
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                btnOn.setEnabled(true);
+                btnOff.setEnabled(true);
+                btnAuto.setEnabled(true);
+                stateView.setText("ERROR");
             }
         }){
             @Override
@@ -179,7 +188,6 @@ public class MainActivity extends AppCompatActivity {
             {
                 Map<String, String>  params = new HashMap<String, String>();
                 params.put("value", String.valueOf(value));
-
                 return params;
             }
         });
@@ -196,27 +204,5 @@ public class MainActivity extends AppCompatActivity {
         }
 
         editor.commit();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 }
