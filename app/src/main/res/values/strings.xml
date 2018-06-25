@@ -1,8 +1,13 @@
 <resources>
     <string name="app_name">Moffa\'s House</string>
-    <string name="action_settings">Settings</string>
     <string name="form_device_name">Nom</string>
     <string name="form_ip_address">Adresse IP</string>
     <string name="form_add">Ajouter</string>
+    <string name="main_activity_title">Appareils</string>
+    <string-array name="power_modes_array">
+        <item>ON</item>
+        <item>OFF</item>
+        <item>AUTO</item>
+    </string-array>
 
 </resources>

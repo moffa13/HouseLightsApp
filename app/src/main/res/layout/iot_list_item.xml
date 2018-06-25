@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_marginBottom="20dp"
+    android:orientation="horizontal"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <TextView
+        android:id="@+id/iot_name"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textSize="20dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="6dp"
+        android:text="IOT Device"/>
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <Spinner
+        android:id="@+id/power_mode_select"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:entries="@array/power_modes_array"></Spinner>
+
+
+    <ImageView
+        android:id="@+id/iot_connected_icon_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/iot_disconnect_icon"
+        />
+
+    <ImageView
+        android:id="@+id/iot_delete_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|center_vertical"
+        android:adjustViewBounds="true"
+        android:maxHeight="20dp"
+        android:maxWidth="20dp"
+        android:onClick="deleteItem"
+        android:scaleType="fitCenter"
+        android:src="@mipmap/icon_delete" />
+
+</LinearLayout>

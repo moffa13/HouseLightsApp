@@ -2,6 +2,7 @@ package houselights.moffa.com.houselightsapp;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
@@ -9,11 +10,17 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.view.ViewManager;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -26,12 +33,14 @@ import com.android.volley.toolbox.Volley;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
     private ArrayList<IOTDevice> _iots;
+    private ArrayList<String> _powerValues;
     private LinearLayout _iotsLayout;
 
     @Override
@@ -45,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         _iotsLayout = findViewById(R.id.iots_layout);
+        _powerValues = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.power_modes_array)));
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -68,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
                     IOTDevice iot = (IOTDevice)s;
                     _iots.add(iot);
                     addIOTTOPrefs();
-                    loadIOTToLayout(iot);
+                    loadIOTToLayout(iot, _iots.size() - 1);
                 }
             }
         }
@@ -87,65 +97,64 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadIOTSToLayout(){
+        int i = 0;
         for(final IOTDevice iot : _iots){
-            loadIOTToLayout(iot);
+            loadIOTToLayout(iot, i);
+            i++;
         }
     }
 
-    private void loadIOTToLayout(final IOTDevice iot){
+    private void loadIOTToLayout(final IOTDevice iot, int id){
         RequestQueue queue = Volley.newRequestQueue(this);
-        final TextView stateView = new TextView(this);
+
+        LayoutInflater inflater = getLayoutInflater();
+        View iot_details_template = inflater.inflate(R.layout.iot_list_item, null);
+        TextView name = (TextView)iot_details_template.findViewById(R.id.iot_name);
+        name.setText(iot.getName());
+
+        final Spinner spinner = iot_details_template.findViewById(R.id.power_mode_select);
+        final ImageView connectedIcon = iot_details_template.findViewById(R.id.iot_connected_icon_view);
+        final ImageView deleteIcon = iot_details_template.findViewById(R.id.iot_delete_item);
+        deleteIcon.setTag(new Integer(id));
+        spinner.setEnabled(false);
 
         queue.add(new StringRequest(Request.Method.GET, "http://" + iot.getIP() + "/get", new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                stateView.setText(getTextfromId(Integer.parseInt(response)));
+                int newValue = _powerValues.indexOf(getTextfromId(Integer.parseInt(response)));
+                spinner.setEnabled(true);
+                spinner.setSelection(newValue);
+                connectedIcon.setImageResource(R.mipmap.iot_connected_icon);
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                stateView.setText("ERROR");
+                connectedIcon.setImageResource(R.mipmap.iot_connected_icon);
             }
         }));
 
-        LinearLayout elem = new LinearLayout(this);
-        elem.setOrientation(LinearLayout.HORIZONTAL);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        elem.setLayoutParams(params);
-        TextView name = new TextView(this);
-        name.setText(iot.getName());
-        final Button btnOn = new Button(this);
-        final Button btnOff = new Button(this);
-        final Button btnAuto = new Button(this);
-        btnOn.setText("ON");
-        btnOff.setText("OFF");
-        btnAuto.setText("AUTO");
+        spinner.setOnItemSelectedListener(new SpinnerListener(new OnSelectedItemInterface() {
+            @Override
+            public void selected(int value, boolean firstSelection) {
+                if(!firstSelection)
+                    request(iot.getIP(), getIdFromText(_powerValues.get(value)), connectedIcon);
+            }
+        }));
 
-        btnOn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                request(iot.getIP(), 1, btnOn, btnOff, btnAuto, stateView);
-            }
-        });
-        btnOff.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                request(iot.getIP(), 0, btnOn, btnOff, btnAuto, stateView);
-            }
-        });
-        btnAuto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                request(iot.getIP(), -1, btnOn, btnOff, btnAuto, stateView);
-            }
-        });
+        _iotsLayout.addView(iot_details_template);
+    }
 
-        elem.addView(name);
-        elem.addView(btnOn);
-        elem.addView(btnOff);
-        elem.addView(btnAuto);
-        elem.addView(stateView);
-        _iotsLayout.addView(elem);
+    public void deleteItem(View v){
+        Integer id = (Integer)v.getTag();
+        _iots.remove(id.intValue());
+        ((ViewGroup)v.getParent().getParent()).removeView((ViewGroup)v.getParent());
+        addIOTTOPrefs();
+    }
+
+    private static int getIdFromText(String val){
+        if(val.equals("ON")) return 1;
+        if(val.equals("OFF")) return 0;
+        return -1;
     }
 
     private static String getTextfromId(int val){
@@ -161,26 +170,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void request(String ip, final int value, final Button btnOn, final Button btnOff, final Button btnAuto, final TextView stateView){
-        btnOn.setEnabled(false);
-        btnOff.setEnabled(false);
-        btnAuto.setEnabled(false);
+    private void request(String ip, final int value, final ImageView icon){
         RequestQueue queue = Volley.newRequestQueue(this);
         queue.add(new StringRequest(Request.Method.POST, "http://" + ip + "/set", new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                btnOn.setEnabled(true);
-                btnOff.setEnabled(true);
-                btnAuto.setEnabled(true);
-                stateView.setText(getTextfromId(value));
+                icon.setImageResource(R.mipmap.iot_connected_icon);
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                btnOn.setEnabled(true);
-                btnOff.setEnabled(true);
-                btnAuto.setEnabled(true);
-                stateView.setText("ERROR");
+                icon.setImageResource(R.mipmap.iot_disconnect_icon);
             }
         }){
             @Override

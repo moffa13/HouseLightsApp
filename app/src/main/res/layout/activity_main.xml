@@ -20,15 +20,29 @@
 
     </android.support.design.widget.AppBarLayout>
 
+
     <LinearLayout
-        android:id="@+id/iots_layout"
-        android:layout_marginTop="?attr/actionBarSize"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <TextView
+            android:layout_marginTop="?attr/actionBarSize"
+            android:paddingTop="15dp"
+            android:layout_marginBottom="30dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/main_activity_title"
+            android:textSize="30dp"/>
 
+        <LinearLayout
+            android:id="@+id/iots_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
+        </LinearLayout>
     </LinearLayout>
 
     <android.support.design.widget.FloatingActionButton
@@ -37,6 +51,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
+        android:tint="@android:color/white"
         app:srcCompat="@android:drawable/ic_input_add" />
 
 </android.support.design.widget.CoordinatorLayout>
