@@ -1,12 +1,19 @@
 package houselights.moffa.com.houselightsapp;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.media.Image;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -42,6 +49,12 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<IOTDevice> _iots;
     private ArrayList<String> _powerValues;
     private LinearLayout _iotsLayout;
+    private BroadcastReceiver _connectionReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            checkIOTConnectivity();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +69,9 @@ public class MainActivity extends AppCompatActivity {
         _iotsLayout = findViewById(R.id.iots_layout);
         _powerValues = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.power_modes_array)));
 
+        IntentFilter filter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
+        registerReceiver(_connectionReceiver, filter);
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,6 +83,16 @@ public class MainActivity extends AppCompatActivity {
 
         getIOTFromPrefs();
         loadIOTSToLayout();
+    }
+
+    private void checkIOTConnectivity(){
+        for(int i = 0; i < _iots.size(); ++i){
+            IOTDevice device = _iots.get(i);
+            LinearLayout itemParent = (LinearLayout)_iotsLayout.getChildAt(i);
+            Spinner spinner = (Spinner)itemParent.findViewById(R.id.power_mode_select);
+            ImageView connectedState = (ImageView)itemParent.findViewById(R.id.iot_connected_icon_view);
+            setConnectedState(device, spinner, connectedState);
+        }
     }
 
     @Override
@@ -105,7 +131,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadIOTToLayout(final IOTDevice iot, int id){
-        RequestQueue queue = Volley.newRequestQueue(this);
 
         LayoutInflater inflater = getLayoutInflater();
         View iot_details_template = inflater.inflate(R.layout.iot_list_item, null);
@@ -118,20 +143,7 @@ public class MainActivity extends AppCompatActivity {
         deleteIcon.setTag(new Integer(id));
         spinner.setEnabled(false);
 
-        queue.add(new StringRequest(Request.Method.GET, "http://" + iot.getIP() + "/get", new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                int newValue = _powerValues.indexOf(getTextfromId(Integer.parseInt(response)));
-                spinner.setEnabled(true);
-                spinner.setSelection(newValue);
-                connectedIcon.setImageResource(R.mipmap.iot_connected_icon);
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                connectedIcon.setImageResource(R.mipmap.iot_connected_icon);
-            }
-        }));
+        setConnectedState(iot, spinner, connectedIcon);
 
         spinner.setOnItemSelectedListener(new SpinnerListener(new OnSelectedItemInterface() {
             @Override
@@ -144,11 +156,42 @@ public class MainActivity extends AppCompatActivity {
         _iotsLayout.addView(iot_details_template);
     }
 
-    public void deleteItem(View v){
-        Integer id = (Integer)v.getTag();
-        _iots.remove(id.intValue());
-        ((ViewGroup)v.getParent().getParent()).removeView((ViewGroup)v.getParent());
-        addIOTTOPrefs();
+    private void setConnectedState(IOTDevice device, final Spinner spinner, final ImageView connectedIcon){
+        RequestQueue queue = Volley.newRequestQueue(this);
+        queue.add(new StringRequest(Request.Method.GET, "http://" + device.getIP() + "/get", new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                int newValue = _powerValues.indexOf(getTextfromId(Integer.parseInt(response)));
+                spinner.setEnabled(true);
+                spinner.setSelection(newValue);
+                connectedIcon.setImageResource(R.mipmap.iot_connected_icon);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                connectedIcon.setImageResource(R.mipmap.iot_disconnected_icon);
+            }
+        }));
+    }
+
+    public void deleteItem(final View v){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.confirm_delete_item);
+        DialogInterface.OnClickListener listener =  new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if(i == AlertDialog.BUTTON_POSITIVE){
+                    Integer id = (Integer)v.getTag();
+                    _iots.remove(id.intValue());
+                    ((ViewGroup)v.getParent().getParent()).removeView((ViewGroup)v.getParent());
+                    addIOTTOPrefs();
+                }
+            }
+        };
+        builder.setPositiveButton(R.string.yes, listener);
+        builder.setNegativeButton(R.string.no, listener);
+        builder.show();
+
     }
 
     private static int getIdFromText(String val){

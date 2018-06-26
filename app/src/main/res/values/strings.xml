@@ -4,6 +4,9 @@
     <string name="form_ip_address">Adresse IP</string>
     <string name="form_add">Ajouter</string>
     <string name="main_activity_title">Appareils</string>
+    <string name="confirm_delete_item">Supprimer cet appareil ?</string>
+    <string name="yes">Oui</string>
+    <string name="no">Non</string>
     <string-array name="power_modes_array">
         <item>ON</item>
         <item>OFF</item>
