@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                icon.setImageResource(R.mipmap.iot_disconnect_icon);
+                icon.setImageResource(R.mipmap.iot_disconnected_icon);
             }
         }){
             @Override

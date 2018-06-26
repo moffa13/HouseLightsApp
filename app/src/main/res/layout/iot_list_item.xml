@@ -32,7 +32,7 @@
         android:id="@+id/iot_connected_icon_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@mipmap/iot_disconnect_icon"
+        android:src="@mipmap/iot_disconnected_icon"
         />
 
     <ImageView
@@ -43,6 +43,7 @@
         android:adjustViewBounds="true"
         android:maxHeight="20dp"
         android:maxWidth="20dp"
+        android:layout_marginStart="10dp"
         android:onClick="deleteItem"
         android:scaleType="fitCenter"
         android:src="@mipmap/icon_delete" />
