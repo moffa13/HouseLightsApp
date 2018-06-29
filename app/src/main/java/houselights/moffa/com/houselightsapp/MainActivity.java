@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.media.Image;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -46,6 +47,8 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final int LIGHT_STATE_UPDATE_INTERVAL = 10000;
+    private final Handler _handler;
     private ArrayList<IOTDevice> _iots;
     private ArrayList<String> _powerValues;
     private LinearLayout _iotsLayout;
@@ -55,6 +58,10 @@ public class MainActivity extends AppCompatActivity {
             checkIOTConnectivity();
         }
     };
+
+    public MainActivity(){
+        _handler = new Handler();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
             LinearLayout itemParent = (LinearLayout)_iotsLayout.getChildAt(i);
             Spinner spinner = (Spinner)itemParent.findViewById(R.id.power_mode_select);
             ImageView connectedState = (ImageView)itemParent.findViewById(R.id.iot_connected_icon_view);
-            setConnectedState(device, spinner, connectedState);
+            setConnectedState(device, spinner, connectedState, null);
         }
     }
 
@@ -113,8 +120,7 @@ public class MainActivity extends AppCompatActivity {
     private void getIOTFromPrefs(){
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         try {
-            String aaa = prefs.getString("iots", ObjectSerializer.serialize(new ArrayList<IOTDevice>()));
-            _iots = (ArrayList<IOTDevice>)ObjectSerializer.deserialize(aaa);
+            _iots = (ArrayList<IOTDevice>)ObjectSerializer.deserialize(prefs.getString("iots", ObjectSerializer.serialize(new ArrayList<IOTDevice>())));
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
@@ -140,23 +146,45 @@ public class MainActivity extends AppCompatActivity {
         final Spinner spinner = iot_details_template.findViewById(R.id.power_mode_select);
         final ImageView connectedIcon = iot_details_template.findViewById(R.id.iot_connected_icon_view);
         final ImageView deleteIcon = iot_details_template.findViewById(R.id.iot_delete_item);
+        final ImageView bulbIcon = iot_details_template.findViewById(R.id.iot_real_state_icon_view);
         deleteIcon.setTag(new Integer(id));
         spinner.setEnabled(false);
 
-        setConnectedState(iot, spinner, connectedIcon);
+        final Runnable rn = new Runnable() {
+            @Override
+            public void run() {
+                final Runnable rrr = this;
+                setConnectedState(iot, spinner, connectedIcon, new ActionInterface() {
+                    @Override
+                    public void action(boolean error) {
+                        if(!error)
+                            checkRealState(iot, bulbIcon, new ActionInterface() {
+                                @Override
+                                public void action(boolean error_real_state) {
+                                    _handler.postDelayed(rrr, LIGHT_STATE_UPDATE_INTERVAL);
+                                }
+                            });
+                        else
+                            _handler.postDelayed(rrr, LIGHT_STATE_UPDATE_INTERVAL);
+                    }
+                });
+
+            }
+        };
+        rn.run();
 
         spinner.setOnItemSelectedListener(new SpinnerListener(new OnSelectedItemInterface() {
             @Override
             public void selected(int value, boolean firstSelection) {
                 if(!firstSelection)
-                    request(iot.getIP(), getIdFromText(_powerValues.get(value)), connectedIcon);
+                    request(iot.getIP(), getIdFromText(_powerValues.get(value)), connectedIcon, bulbIcon);
             }
         }));
 
         _iotsLayout.addView(iot_details_template);
     }
 
-    private void setConnectedState(IOTDevice device, final Spinner spinner, final ImageView connectedIcon){
+    private void setConnectedState(IOTDevice device, final Spinner spinner, final ImageView connectedIcon, final ActionInterface ii){
         RequestQueue queue = Volley.newRequestQueue(this);
         queue.add(new StringRequest(Request.Method.GET, "http://" + device.getIP() + "/get", new Response.Listener<String>() {
             @Override
@@ -165,11 +193,15 @@ public class MainActivity extends AppCompatActivity {
                 spinner.setEnabled(true);
                 spinner.setSelection(newValue);
                 connectedIcon.setImageResource(R.mipmap.iot_connected_icon);
+                if(ii != null)
+                    ii.action(false);
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 connectedIcon.setImageResource(R.mipmap.iot_disconnected_icon);
+                if(ii != null)
+                    ii.action(true);
             }
         }));
     }
@@ -213,12 +245,39 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void request(String ip, final int value, final ImageView icon){
+    private void checkRealState(IOTDevice device, final ImageView icon, final ActionInterface ii){
+        RequestQueue queue = Volley.newRequestQueue(this);
+        queue.add(new StringRequest(Request.Method.POST, "http://" + device.getIP() + "/get_real", new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                if(response.equals("1")){
+                    icon.setImageResource(R.mipmap.iot_on_icon);
+                }else{
+                    icon.setImageResource(R.mipmap.iot_off_icon);
+                }
+                if(ii != null)
+                    ii.action(false);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                icon.setImageResource(R.mipmap.iot_off_icon);
+                if(ii != null)
+                    ii.action(true);
+            }
+        }));
+    }
+
+    private void request(String ip, final int value, final ImageView icon, final ImageView bulbIcon){
         RequestQueue queue = Volley.newRequestQueue(this);
         queue.add(new StringRequest(Request.Method.POST, "http://" + ip + "/set", new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 icon.setImageResource(R.mipmap.iot_connected_icon);
+                if(value == 1)
+                    bulbIcon.setImageResource(R.mipmap.iot_on_icon);
+                else if(value == 0)
+                    bulbIcon.setImageResource(R.mipmap.iot_off_icon);
             }
         }, new Response.ErrorListener() {
             @Override
