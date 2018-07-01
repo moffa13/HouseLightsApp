@@ -8,15 +8,16 @@
 
     <TextView
         android:id="@+id/iot_name"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
+        android:fillViewport="true"
         android:layout_marginEnd="6dp"
         android:layout_marginStart="4dp"
-        android:gravity="center"
-        android:text=" Long IOT Device Name"
-        android:textSize="20dp"
         android:layout_weight="2"
-        />
+        android:gravity="start|center_vertical"
+        android:textColor="@color/colorText"
+        android:text="Name"
+        android:textSize="20sp" />
 
 
     <LinearLayout
@@ -29,6 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:entries="@array/power_modes_array"
+            android:backgroundTint="@color/colorText"
             android:layout_weight="1"></Spinner>
 
         <ImageView

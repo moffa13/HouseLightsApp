@@ -50,10 +50,19 @@ public class MainActivity extends AppCompatActivity {
     private static final int LIGHT_STATE_UPDATE_INTERVAL = 10000;
     private final Handler _handler;
     private ArrayList<IOTDevice> _iots;
+    // Possible values of the spinner (ON, OFF, AUTO)
     private ArrayList<String> _powerValues;
+    // Layout containing each iot row
     private LinearLayout _iotsLayout;
+
+    /**
+     * Receiver of android.net.conn.CONNECTIVITY_CHANGE
+     */
     private BroadcastReceiver _connectionReceiver = new BroadcastReceiver() {
         @Override
+        /**
+         * Check each iot device state
+         */
         public void onReceive(Context context, Intent intent) {
             checkIOTConnectivity();
         }
@@ -72,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         _iotsLayout = findViewById(R.id.iots_layout);
         _powerValues = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.power_modes_array)));
@@ -80,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(_connectionReceiver, filter);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        // Show Add device activity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -176,6 +187,7 @@ public class MainActivity extends AppCompatActivity {
         spinner.setOnItemSelectedListener(new SpinnerListener(new OnSelectedItemInterface() {
             @Override
             public void selected(int value, boolean firstSelection) {
+
                 if(!firstSelection)
                     request(iot.getIP(), getIdFromText(_powerValues.get(value)), connectedIcon, bulbIcon);
             }
