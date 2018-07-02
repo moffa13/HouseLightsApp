@@ -6,38 +6,26 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.media.Image;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.ViewGroup;
-import android.view.ViewManager;
-import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -50,10 +38,19 @@ public class MainActivity extends AppCompatActivity {
     private static final int LIGHT_STATE_UPDATE_INTERVAL = 10000;
     private final Handler _handler;
     private ArrayList<IOTDeviceWithGraphics> _iots;
+    // Possible values of the spinner (ON, OFF, AUTO)
     private ArrayList<String> _powerValues;
+    // Layout containing each iot row
     private LinearLayout _iotsLayout;
+
+    /**
+     * Receiver of android.net.conn.CONNECTIVITY_CHANGE
+     */
     private BroadcastReceiver _connectionReceiver = new BroadcastReceiver() {
         @Override
+        /**
+         * Check each iot device state
+         */
         public void onReceive(Context context, Intent intent) {
             checkIOTConnectivity();
         }
@@ -72,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         _iotsLayout = findViewById(R.id.iots_layout);
         _powerValues = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.power_modes_array)));
@@ -80,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(_connectionReceiver, filter);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        // Show Add device activity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -185,6 +184,7 @@ public class MainActivity extends AppCompatActivity {
         spinner.setOnItemSelectedListener(new SpinnerListener(new OnSelectedItemInterface() {
             @Override
             public void selected(int value, boolean firstSelection) {
+
                 if(!firstSelection)
                     request(iot, getIdFromText(_powerValues.get(value)));
             }
