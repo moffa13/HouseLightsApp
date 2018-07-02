@@ -235,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
                 if(i == AlertDialog.BUTTON_POSITIVE){
                     Integer id = (Integer)v.getTag();
                     _iots.remove(id.intValue());
-                    ((ViewGroup)v.getParent().getParent()).removeView((ViewGroup)v.getParent());
+                    ((ViewGroup)v.getParent().getParent()).removeAllViews();
                     addIOTTOPrefs();
                 }
             }
@@ -324,12 +324,11 @@ public class MainActivity extends AppCompatActivity {
 
         ArrayList<IOTDevice> iotsToSave = new ArrayList<>();
         for(IOTDeviceWithGraphics iot : _iots){
-            iotsToSave.add(iot);
+            iotsToSave.add(new IOTDevice(iot));
         }
 
         try {
-            editor.putString("iots", ObjectSerializer.serialize(_iots));
-        } catch (IOException e) {
+         } catch (IOException e) {
             e.printStackTrace();
         }
 
