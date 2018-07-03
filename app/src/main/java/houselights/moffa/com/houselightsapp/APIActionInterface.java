@@ -4,6 +4,6 @@ package houselights.moffa.com.houselightsapp;
  * Created by moffa on 29-06-18.
  */
 
-public interface ActionInterface {
-    void action(boolean error);
+public interface APIActionInterface<T>{
+    void action(boolean error, T t);
 }

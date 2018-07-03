@@ -142,6 +142,16 @@ public class MainActivity extends AppCompatActivity {
         View iot_details_template = inflater.inflate(R.layout.iot_list_item, null);
         TextView name = (TextView)iot_details_template.findViewById(R.id.iot_name);
         name.setText(iot.getName());
+        name.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MainActivity.this, IOTDeviceParamsActivity.class);
+                Bundle b = new Bundle();
+                b.putSerializable("device", new IOTDevice(iot));
+                i.putExtras(b);
+                startActivity(i);
+            }
+        });
 
         final Spinner spinner = iot_details_template.findViewById(R.id.power_mode_select);
         final ImageView connectedIcon = iot_details_template.findViewById(R.id.iot_connected_icon_view);
@@ -328,6 +338,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         try {
+            editor.putString("iots", ObjectSerializer.serialize(_iots));
          } catch (IOException e) {
             e.printStackTrace();
         }

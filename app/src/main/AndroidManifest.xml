@@ -14,15 +14,16 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:launchMode="singleInstance">
+            android:launchMode="singleInstance"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".AddIOTDevice"></activity>
+        <activity android:name=".AddIOTDevice" />
+        <activity android:name=".IOTDeviceParamsActivity"></activity>
     </application>
 
 </manifest>
