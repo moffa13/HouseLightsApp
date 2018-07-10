@@ -7,6 +7,15 @@
     <string name="confirm_delete_item">Supprimer cet appareil ?</string>
     <string name="yes">Oui</string>
     <string name="no">Non</string>
+    <string-array name="before_after_array">
+        <item>Avant</item>
+        <item>Après</item>
+    </string-array>
+    <string-array name="time_array">
+        <item>secondes</item>
+        <item>minutes</item>
+        <item>heures</item>
+    </string-array>
     <string-array name="power_modes_array">
         <item>ON</item>
         <item>OFF</item>

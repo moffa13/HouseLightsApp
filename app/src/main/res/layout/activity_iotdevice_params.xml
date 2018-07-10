@@ -24,10 +24,18 @@
             <NumberPicker
                 android:id="@+id/param_sunset_warn_value"
                 android:layout_width="wrap_content"
+                android:orientation="horizontal"
                 android:layout_height="wrap_content" />
 
             <Spinner
                 android:id="@+id/param_sunset_warn_type"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:entries="@array/time_array" />
+
+            <Spinner
+                android:id="@+id/param_sunset_before_after"
+                android:entries="@array/before_after_array"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent" />
 
@@ -52,6 +60,7 @@
             <Spinner
                 android:id="@+id/param_power_min_type"
                 android:layout_width="wrap_content"
+                android:entries="@array/time_array"
                 android:layout_height="match_parent" />
 
 
@@ -75,6 +84,7 @@
             <Spinner
                 android:id="@+id/param_power_max_type"
                 android:layout_width="wrap_content"
+                android:entries="@array/time_array"
                 android:layout_height="match_parent" />
 
 
