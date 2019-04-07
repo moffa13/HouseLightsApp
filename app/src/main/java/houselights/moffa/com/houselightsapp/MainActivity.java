@@ -338,7 +338,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         try {
-            editor.putString("iots", ObjectSerializer.serialize(_iots));
+            editor.putString("iots", ObjectSerializer.serialize(iotsToSave));
          } catch (IOException e) {
             e.printStackTrace();
         }
