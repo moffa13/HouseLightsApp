@@ -12,6 +12,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,11 +62,16 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
             public void run(final ActionInterface ai) {
                 getParam("power_min", new APIActionInterface<String>() {
                     @Override
-                    public void action(boolean error, String response) {
+                    public void action(boolean error, final String response) {
                         if(!error){
-                            NumberPicker picker = findViewById(R.id.param_power_min_value);
-                            Spinner timeTypeSpinner = findViewById(R.id.param_power_min_type);
-                            adjustNumberPickerWithSpinner(picker, timeTypeSpinner, Integer.parseInt(response));
+                            final NumberPicker picker = findViewById(R.id.param_power_min_value);
+                            final Spinner timeTypeSpinner = findViewById(R.id.param_power_min_type);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    adjustNumberPickerWithSpinner(picker, timeTypeSpinner, Integer.parseInt(response));
+                                }
+                            });
                         }
                         ai.action(error);
                     }
@@ -113,6 +121,7 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
     }
 
     private static void setPickerMaxLimits(NumberPicker picker, int selection){
+
         if(selection == 0){ // seconds
             picker.setMinValue(0);
             picker.setMaxValue(86400);

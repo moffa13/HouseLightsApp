@@ -36,6 +36,7 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity {
 
     private static final int LIGHT_STATE_UPDATE_INTERVAL = 10000;
+    private boolean _paused = false;
     private final Handler _handler;
     private ArrayList<IOTDeviceWithGraphics> _iots;
     // Possible values of the spinner (ON, OFF, AUTO)
@@ -58,6 +59,20 @@ public class MainActivity extends AppCompatActivity {
 
     public MainActivity(){
         _handler = new Handler();
+    }
+
+    @Override
+    protected void onPause(){
+        super.onPause();
+        _paused = true;
+        removeAllAutoFetch();
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        _paused = false;
+        enableAutoFetchState();
     }
 
     @Override
@@ -92,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void checkIOTConnectivity(){
+        if(_paused) return;
         for(int i = 0; i < _iots.size(); ++i){
             IOTDeviceWithGraphics device = _iots.get(i);
             setConnectedState(device, null);
@@ -168,6 +184,32 @@ public class MainActivity extends AppCompatActivity {
 
         iot.setRealStateView(bulbIcon);
 
+        enableAutoFetchState(iot);
+
+        spinner.setOnItemSelectedListener(new SpinnerListener(new OnSelectedItemInterface() {
+            @Override
+            public void selected(int value, boolean firstSelection) {
+
+                if(!firstSelection)
+                    request(iot, getIdFromText(_powerValues.get(value)));
+            }
+        }));
+
+        _iotsLayout.addView(iot_details_template);
+    }
+
+    private void removeAllAutoFetch(){
+        _handler.removeCallbacks(null);
+    }
+
+    private void enableAutoFetchState() {
+        for (IOTDeviceWithGraphics iot : _iots) {
+            enableAutoFetchState(iot);
+        }
+    }
+
+    private void enableAutoFetchState(final IOTDeviceWithGraphics iot){
+        removeAllAutoFetch();
         final Runnable rn = new Runnable() {
             @Override
             public void run() {
@@ -190,17 +232,6 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         rn.run();
-
-        spinner.setOnItemSelectedListener(new SpinnerListener(new OnSelectedItemInterface() {
-            @Override
-            public void selected(int value, boolean firstSelection) {
-
-                if(!firstSelection)
-                    request(iot, getIdFromText(_powerValues.get(value)));
-            }
-        }));
-
-        _iotsLayout.addView(iot_details_template);
     }
 
     private void setConnectedState(final IOTDeviceWithGraphics device, final ActionInterface ii){
@@ -338,7 +369,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         try {
-            editor.putString("iots", ObjectSerializer.serialize(_iots));
+            editor.putString("iots", ObjectSerializer.serialize(iotsToSave));
          } catch (IOException e) {
             e.printStackTrace();
         }
