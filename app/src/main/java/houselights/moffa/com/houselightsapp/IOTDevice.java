@@ -8,8 +8,8 @@ import java.io.Serializable;
 
 public class IOTDevice implements Serializable{
 
-    private final String _ip;
-    private final String _name;
+    private String _ip;
+    private String _name;
 
     protected IOTDevice(IOTDevice iotDevice){
         _ip = iotDevice.getIP();
@@ -21,11 +21,28 @@ public class IOTDevice implements Serializable{
         _name = name;
     }
 
+    @Override
+    public boolean equals(Object o){
+        if(o == this) return true;
+        if(!(o instanceof IOTDevice)) return false;
+        IOTDevice iot = (IOTDevice)o;
+        if(iot.getIP().equals(getIP()) && iot.getName().equals(getName())) return true;
+        return false;
+    }
+
     public String getName(){
         return _name;
     }
 
     public String getIP(){
         return _ip;
+    }
+
+    public void setName(String name) {
+        this._name = name;
+    }
+
+    public void setIp(String ip) {
+        this._ip = ip;
     }
 }

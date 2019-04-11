@@ -8,139 +8,174 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <EditText
-            android:id="@+id/deviceName"
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content">
 
-        <EditText
-            android:id="@+id/deviceIp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <TextView
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="Sunset_warn" />
+                android:layout_gravity="center"
+                android:orientation="vertical">
 
-            <NumberPicker
-                android:id="@+id/param_sunset_warn_value_main"
-                android:layout_width="20dip"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal" />
+                <EditText
+                    android:id="@+id/deviceName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
 
-            <NumberPicker
-                android:id="@+id/param_sunset_warn_value_sub"
-                android:layout_width="20dip"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal" />
+                <EditText
+                    android:id="@+id/deviceIp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
 
-            <NumberPicker
-                android:id="@+id/param_sunset_warn_value_sub_sub"
-                android:layout_width="20dip"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal">
 
-            <Spinner
-                android:id="@+id/param_sunset_before_after"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:entries="@array/before_after_array" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:hint="Sunset_warn" />
 
+                    <NumberPicker
+                        android:id="@+id/param_sunset_warn_value_main"
+                        android:layout_width="20dip"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginHorizontal="13dp"/>
 
-        </LinearLayout>
+                    <NumberPicker
+                        android:id="@+id/param_sunset_warn_value_sub"
+                        android:layout_width="20dip"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginHorizontal="13dp"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal">
+                    <NumberPicker
+                        android:id="@+id/param_sunset_warn_value_sub_sub"
+                        android:layout_width="20dip"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginHorizontal="13dp"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:hint="power_min" />
-
-            <NumberPicker
-                android:id="@+id/param_power_min_value_main"
-                android:layout_width="20dip"
-                android:layout_height="wrap_content" />
-
-            <NumberPicker
-                android:id="@+id/param_power_min_value_sub"
-                android:layout_width="20dip"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal" />
-
-            <NumberPicker
-                android:id="@+id/param_power_min_value_sub_sub"
-                android:layout_width="20dip"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal" />
+                    <Spinner
+                        android:id="@+id/param_sunset_before_after"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:entries="@array/before_after_array" />
 
 
-        </LinearLayout>
+                </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:hint="power_max" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:hint="power_min" />
 
-            <NumberPicker
-                android:id="@+id/param_power_max_value_main"
-                android:layout_width="20dip"
-                android:layout_height="wrap_content" />
+                    <NumberPicker
+                        android:id="@+id/param_power_min_value_main"
+                        android:layout_width="20dip"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="13dp"/>
 
-            <NumberPicker
-                android:id="@+id/param_power_max_value_sub"
-                android:layout_width="20dip"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal" />
+                    <NumberPicker
+                        android:id="@+id/param_power_min_value_sub"
+                        android:layout_width="20dip"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginHorizontal="13dp"/>
 
-            <NumberPicker
-                android:id="@+id/param_power_max_value_sub_sub"
-                android:layout_width="20dip"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal" />
-
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:hint="google_api_key" />
-
-            <EditText
-                android:id="@+id/param_google_api_key"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent" />
+                    <NumberPicker
+                        android:id="@+id/param_power_min_value_sub_sub"
+                        android:layout_width="20dip"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginHorizontal="13dp"/>
 
 
-        </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:hint="power_max" />
+
+                    <NumberPicker
+                        android:id="@+id/param_power_max_value_main"
+                        android:layout_width="20dip"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="13dp"/>
+
+                    <NumberPicker
+                        android:id="@+id/param_power_max_value_sub"
+                        android:layout_width="20dip"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginHorizontal="13dp"/>
+
+                    <NumberPicker
+                        android:id="@+id/param_power_max_value_sub_sub"
+                        android:layout_width="20dip"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginHorizontal="13dp"/>
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:hint="google_api_key" />
+
+                    <EditText
+                        android:id="@+id/param_google_api_key"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent" />
+
+
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/infosButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/infos" />
+
+                <Button
+                    android:id="@+id/rebootButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/reboot" />
+
+            </LinearLayout>
+
+        </ScrollView>
 
     </LinearLayout>
+
+
 
 
 </android.support.constraint.ConstraintLayout>

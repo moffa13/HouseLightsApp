@@ -22,8 +22,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".AddIOTDevice" />
-        <activity android:name=".IOTDeviceParamsActivity"></activity>
+        <activity android:name=".AddIOTDevice" android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".IOTDeviceParamsActivity" android:windowSoftInputMode="adjustPan"></activity>
     </application>
 
 </manifest>

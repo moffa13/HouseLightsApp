@@ -127,6 +127,26 @@ public class MainActivity extends AppCompatActivity {
                     loadIOTToLayout(iotGraphics, _iots.size() - 1);
                 }
             }
+        }else if(requestCode == 2){ // Param activity closed, update IOTDevice
+            if(resultCode == RESULT_OK){
+                Serializable s = i.getSerializableExtra("oldElem");
+                Serializable nS = i.getSerializableExtra("newElem");
+                if(s != null && nS != null){
+                    IOTDevice oldElem = (IOTDevice)s;
+                    IOTDevice newElem = (IOTDevice)nS;
+                    if(oldElem.equals(newElem)) return;
+                    for(int a = 0 ; a < _iots.size(); ++a){
+                        IOTDeviceWithGraphics iot = _iots.get(a);
+                        if(iot.equals(oldElem)){
+                            iot.setIp(newElem.getIP());
+                            iot.setName(newElem.getName());
+                            addIOTTOPrefs();
+                            _iotsLayout.removeAllViews();
+                            loadIOTSToLayout();
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -165,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
                 Bundle b = new Bundle();
                 b.putSerializable("device", new IOTDevice(iot));
                 i.putExtras(b);
-                startActivity(i);
+                startActivityForResult(i, 2);
             }
         });
 
@@ -217,15 +237,15 @@ public class MainActivity extends AppCompatActivity {
                 setConnectedState(iot, new ActionInterface() {
                     @Override
                     public void action(boolean error) {
-                        if(!error)
-                            checkRealState(iot, new ActionInterface() {
-                                @Override
-                                public void action(boolean error_real_state) {
-                                    _handler.postDelayed(rrr, LIGHT_STATE_UPDATE_INTERVAL);
-                                }
-                            });
-                        else
-                            _handler.postDelayed(rrr, LIGHT_STATE_UPDATE_INTERVAL);
+                    if(!error)
+                        checkRealState(iot, new ActionInterface() {
+                            @Override
+                            public void action(boolean error_real_state) {
+                                _handler.postDelayed(rrr, LIGHT_STATE_UPDATE_INTERVAL);
+                            }
+                        });
+                    else
+                        _handler.postDelayed(rrr, LIGHT_STATE_UPDATE_INTERVAL);
                     }
                 });
 

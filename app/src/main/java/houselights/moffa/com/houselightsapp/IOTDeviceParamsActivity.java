@@ -1,10 +1,12 @@
 package houselights.moffa.com.houselightsapp;
+import android.content.Intent;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.Spinner;
@@ -26,21 +28,39 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
 
     private IOTDevice _device;
 
-    EditText deviceName;
-    EditText deviceIp;
+    private EditText deviceName;
+    private EditText deviceIp;
 
-    NumberPicker paramSunsetWarnValueMain;
-    NumberPicker paramSunsetWarnValueSub;
-    NumberPicker paramSunsetWarnValueSubSub;
-    Spinner paramSunsetWarnBeforeAfter;
+    private NumberPicker paramSunsetWarnValueMain;
+    private NumberPicker paramSunsetWarnValueSub;
+    private NumberPicker paramSunsetWarnValueSubSub;
+    private Spinner paramSunsetWarnBeforeAfter;
 
-    NumberPicker paramPowerMinValueMain;
-    NumberPicker paramPowerMinValueSub;
-    NumberPicker paramPowerMinValueSubSub;
+    private NumberPicker paramPowerMinValueMain;
+    private NumberPicker paramPowerMinValueSub;
+    private NumberPicker paramPowerMinValueSubSub;
 
-    NumberPicker paramPowerMaxValueMain;
-    NumberPicker paramPowerMaxValueSub;
-    NumberPicker paramPowerMaxValueSubSub;
+    private NumberPicker paramPowerMaxValueMain;
+    private NumberPicker paramPowerMaxValueSub;
+    private NumberPicker paramPowerMaxValueSubSub;
+
+    private Button infosButton;
+    private Button rebootButton;
+
+    @Override
+    public void finish() {
+        Intent i = new Intent();
+        Bundle b = new Bundle();
+        b.putSerializable("oldElem", _device);
+        IOTDevice newIotDevice = new IOTDevice(_device);
+        newIotDevice.setIp(deviceIp.getText().toString());
+        newIotDevice.setName(deviceName.getText().toString());
+
+        b.putSerializable("newElem", newIotDevice);
+        i.putExtras(b);
+        setResult(RESULT_OK, i);
+        super.finish();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +87,46 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
         paramPowerMaxValueSub = findViewById(R.id.param_power_max_value_sub);
         paramPowerMaxValueSubSub = findViewById(R.id.param_power_max_value_sub_sub);
 
-        Log.d("LOL", String.valueOf(paramSunsetWarnBeforeAfter.getSelectedItemPosition()));
+        infosButton = findViewById(R.id.infosButton);
+        rebootButton = findViewById(R.id.rebootButton);
+
+        infosButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                RequestQueue queue = Volley.newRequestQueue(IOTDeviceParamsActivity.this);
+                StringRequest request = new StringRequest(Request.Method.POST, "http://" + _device.getIP() + "/infos", new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Toast.makeText(IOTDeviceParamsActivity.this, response, Toast.LENGTH_LONG).show();
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(IOTDeviceParamsActivity.this, "Error retrieving infos", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                queue.add(request);
+            }
+        });
+
+        rebootButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                RequestQueue queue = Volley.newRequestQueue(IOTDeviceParamsActivity.this);
+                StringRequest request = new StringRequest(Request.Method.POST, "http://" + _device.getIP() + "/reboot", new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        finish();
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(IOTDeviceParamsActivity.this, "Error rebooting device", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                queue.add(request);
+            }
+        });
 
         registerUpdate("sunset_warn", paramSunsetWarnValueMain, paramSunsetWarnValueMain, paramSunsetWarnValueSub, paramSunsetWarnValueSubSub);
         registerUpdate("sunset_warn", paramSunsetWarnValueSub, paramSunsetWarnValueMain, paramSunsetWarnValueSub, paramSunsetWarnValueSubSub);
