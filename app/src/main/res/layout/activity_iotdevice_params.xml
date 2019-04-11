@@ -9,35 +9,53 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/deviceName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <EditText
+            android:id="@+id/deviceIp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:orientation="horizontal">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="Sunset_warn"/>
+                android:hint="Sunset_warn" />
 
             <NumberPicker
-                android:id="@+id/param_sunset_warn_value"
-                android:layout_width="wrap_content"
-                android:orientation="horizontal"
-                android:layout_height="wrap_content" />
+                android:id="@+id/param_sunset_warn_value_main"
+                android:layout_width="20dip"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
 
-            <Spinner
-                android:id="@+id/param_sunset_warn_type"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:entries="@array/time_array" />
+            <NumberPicker
+                android:id="@+id/param_sunset_warn_value_sub"
+                android:layout_width="20dip"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
+
+            <NumberPicker
+                android:id="@+id/param_sunset_warn_value_sub_sub"
+                android:layout_width="20dip"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
 
             <Spinner
                 android:id="@+id/param_sunset_before_after"
-                android:entries="@array/before_after_array"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:entries="@array/before_after_array" />
 
 
         </LinearLayout>
@@ -45,47 +63,61 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:orientation="horizontal">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="power_min"/>
+                android:hint="power_min" />
 
             <NumberPicker
-                android:id="@+id/param_power_min_value"
-                android:layout_width="wrap_content"
+                android:id="@+id/param_power_min_value_main"
+                android:layout_width="20dip"
                 android:layout_height="wrap_content" />
-
-            <Spinner
-                android:id="@+id/param_power_min_type"
-                android:layout_width="wrap_content"
-                android:entries="@array/time_array"
-                android:layout_height="match_parent" />
-
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:hint="power_max"/>
 
             <NumberPicker
-                android:id="@+id/param_power_max_value"
+                android:id="@+id/param_power_min_value_sub"
+                android:layout_width="20dip"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
+
+            <NumberPicker
+                android:id="@+id/param_power_min_value_sub_sub"
+                android:layout_width="20dip"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
                 android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="power_max" />
+
+            <NumberPicker
+                android:id="@+id/param_power_max_value_main"
+                android:layout_width="20dip"
                 android:layout_height="wrap_content" />
 
-            <Spinner
-                android:id="@+id/param_power_max_type"
-                android:layout_width="wrap_content"
-                android:entries="@array/time_array"
-                android:layout_height="match_parent" />
+            <NumberPicker
+                android:id="@+id/param_power_max_value_sub"
+                android:layout_width="20dip"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
+
+            <NumberPicker
+                android:id="@+id/param_power_max_value_sub_sub"
+                android:layout_width="20dip"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
 
 
         </LinearLayout>
@@ -98,7 +130,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="google_api_key"/>
+                android:hint="google_api_key" />
 
             <EditText
                 android:id="@+id/param_google_api_key"
