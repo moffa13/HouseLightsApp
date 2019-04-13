@@ -3,6 +3,8 @@ import android.content.Intent;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -46,6 +48,7 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
 
     private Button infosButton;
     private Button rebootButton;
+    private EditText apiKey;
 
     @Override
     public void finish() {
@@ -87,8 +90,27 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
         paramPowerMaxValueSub = findViewById(R.id.param_power_max_value_sub);
         paramPowerMaxValueSubSub = findViewById(R.id.param_power_max_value_sub_sub);
 
+        apiKey = findViewById(R.id.param_google_api_key);
         infosButton = findViewById(R.id.infosButton);
         rebootButton = findViewById(R.id.rebootButton);
+
+        apiKey.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                setParam("google_api_key", s.toString());
+            }
+        });
+
 
         infosButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -174,13 +196,7 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
                     @Override
                     public void action(boolean error, final String response) {
                         if(!error){
-
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    adjustNumberPickerWithSpinner(paramPowerMinValueMain, paramPowerMinValueSub, paramPowerMinValueSubSub, Integer.parseInt(response));
-                                }
-                            });
+                            adjustNumberPickerWithSpinner(paramPowerMinValueMain, paramPowerMinValueSub, paramPowerMinValueSubSub, Integer.parseInt(response));
                         }
                         ai.action(error);
                     }
@@ -206,8 +222,7 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
                     @Override
                     public void action(boolean error, String response) {
                         if(!error){
-                            EditText edit = findViewById(R.id.param_google_api_key);
-                            edit.setText(response);
+                            apiKey.setText(response);
                         }
                         ai.action(error);
                     }
@@ -216,9 +231,7 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
         }).run(new ActionInterface() {
             @Override
             public void action(boolean error) {
-                if(!error)
-                    Log.d("LOLL", "It worked !");
-                else
+                if(error)
                     Toast.makeText(getApplicationContext(), "Error retrieving parameters", Toast.LENGTH_SHORT).show();
             }
         });
@@ -227,7 +240,6 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
     }
 
     private static void setPickerMaxLimits(NumberPicker picker, TimeType selection){
-
         if(selection == TimeType.SECONDS || selection == TimeType.MINUTES){ // seconds
             picker.setMinValue(0);
             picker.setMaxValue(59);
@@ -263,14 +275,25 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
     }
 
 
-    private void setParam(String name, int value){
+    private void setParam(final String name, int value){
         if(name.equalsIgnoreCase("sunset_warn") && paramSunsetWarnBeforeAfter.getSelectedItemPosition() == 1)
             value = -value;
         setParam(name, String.valueOf(value), new APIActionInterface<String>() {
             @Override
             public void action(boolean error, String s) {
                 if(error){
-                    Toast.makeText(getApplicationContext(), "Error settings parameters", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Error settings parameter " + name, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void setParam(final String name, String value){
+        setParam(name, value, new APIActionInterface<String>() {
+            @Override
+            public void action(boolean error, String s) {
+                if(error){
+                    Toast.makeText(getApplicationContext(), "Error settings parameter " + name, Toast.LENGTH_SHORT).show();
                 }
             }
         });
