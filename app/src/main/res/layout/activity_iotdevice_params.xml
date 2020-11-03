@@ -17,7 +17,7 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                android:layout_gravity="center_horizontal"
                 android:orientation="vertical">
 
                 <EditText
@@ -29,6 +29,7 @@
                     android:id="@+id/deviceIp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
+
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -131,6 +132,40 @@
 
                     <NumberPicker
                         android:id="@+id/param_power_max_value_sub_sub"
+                        android:layout_width="20dip"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginHorizontal="13dp"/>
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:hint="power_morning_min" />
+
+                    <NumberPicker
+                        android:id="@+id/param_power_morning_min_value_main"
+                        android:layout_width="20dip"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="13dp"/>
+
+                    <NumberPicker
+                        android:id="@+id/param_power_morning_min_value_sub"
+                        android:layout_width="20dip"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginHorizontal="13dp"/>
+
+                    <NumberPicker
+                        android:id="@+id/param_power_morning_min_value_sub_sub"
                         android:layout_width="20dip"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"

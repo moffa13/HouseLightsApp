@@ -46,6 +46,10 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
     private NumberPicker paramPowerMaxValueSub;
     private NumberPicker paramPowerMaxValueSubSub;
 
+    private NumberPicker paramPowerMorningMinValueMain;
+    private NumberPicker paramPowerMorningMinValueSub;
+    private NumberPicker paramPowerMorningMinValueSubSub;
+
     private Button infosButton;
     private Button rebootButton;
     private EditText apiKey;
@@ -90,6 +94,10 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
         paramPowerMaxValueSub = findViewById(R.id.param_power_max_value_sub);
         paramPowerMaxValueSubSub = findViewById(R.id.param_power_max_value_sub_sub);
 
+        paramPowerMorningMinValueMain = findViewById(R.id.param_power_morning_min_value_main);
+        paramPowerMorningMinValueSub = findViewById(R.id.param_power_morning_min_value_sub);
+        paramPowerMorningMinValueSubSub = findViewById(R.id.param_power_morning_min_value_sub_sub);
+
         apiKey = findViewById(R.id.param_google_api_key);
         infosButton = findViewById(R.id.infosButton);
         rebootButton = findViewById(R.id.rebootButton);
@@ -115,8 +123,9 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
         infosButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(_device.getRealIP() == null) return;
                 RequestQueue queue = Volley.newRequestQueue(IOTDeviceParamsActivity.this);
-                StringRequest request = new StringRequest(Request.Method.POST, "http://" + _device.getIP() + "/infos", new Response.Listener<String>() {
+                StringRequest request = new StringRequest(Request.Method.POST, "http://" + _device.getRealIP() + "/infos", new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         Toast.makeText(IOTDeviceParamsActivity.this, response, Toast.LENGTH_LONG).show();
@@ -134,8 +143,9 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
         rebootButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(_device.getRealIP() == null) return;
                 RequestQueue queue = Volley.newRequestQueue(IOTDeviceParamsActivity.this);
-                StringRequest request = new StringRequest(Request.Method.POST, "http://" + _device.getIP() + "/reboot", new Response.Listener<String>() {
+                StringRequest request = new StringRequest(Request.Method.POST, "http://" + _device.getRealIP() + "/reboot", new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         finish();
@@ -162,6 +172,10 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
         registerUpdate("power_max", paramPowerMaxValueMain, paramPowerMaxValueMain, paramPowerMaxValueSub, paramPowerMaxValueSubSub);
         registerUpdate("power_max", paramPowerMaxValueSub, paramPowerMaxValueMain, paramPowerMaxValueSub, paramPowerMaxValueSubSub);
         registerUpdate("power_max", paramPowerMaxValueSubSub, paramPowerMaxValueMain, paramPowerMaxValueSub, paramPowerMaxValueSubSub);
+
+        registerUpdate("power_morning_min", paramPowerMorningMinValueMain, paramPowerMorningMinValueMain, paramPowerMorningMinValueSub, paramPowerMorningMinValueSubSub);
+        registerUpdate("power_morning_min", paramPowerMorningMinValueSub, paramPowerMorningMinValueMain, paramPowerMorningMinValueSub, paramPowerMorningMinValueSubSub);
+        registerUpdate("power_morning_min", paramPowerMorningMinValueSubSub, paramPowerMorningMinValueMain, paramPowerMorningMinValueSub, paramPowerMorningMinValueSubSub);
 
         deviceName.setText(_device.getName());
         deviceIp.setText(_device.getIP());
@@ -210,6 +224,19 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
                     public void action(boolean error, String response) {
                         if(!error){
                             adjustNumberPickerWithSpinner(paramPowerMaxValueMain, paramPowerMaxValueSub, paramPowerMaxValueSubSub, Integer.parseInt(response));
+                        }
+                        ai.action(error);
+                    }
+                });
+            }
+        }).registerCallback(new Callback() {
+            @Override
+            public void run(final ActionInterface ai) {
+                getParam("power_morning_min", new APIActionInterface<String>() {
+                    @Override
+                    public void action(boolean error, String response) {
+                        if(!error){
+                            adjustNumberPickerWithSpinner(paramPowerMorningMinValueMain, paramPowerMorningMinValueSub, paramPowerMorningMinValueSubSub, Integer.parseInt(response));
                         }
                         ai.action(error);
                     }
@@ -326,8 +353,12 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
     }
 
     private void setParam(final String paramName, final String paramValue, final APIActionInterface<String> actionInterface){
+        if(_device.getRealIP() == null){
+            actionInterface.action(true, null);
+            return;
+        }
         RequestQueue queue = Volley.newRequestQueue(this);
-        StringRequest request = new StringRequest(Request.Method.POST, "http://" + _device.getIP() + "/param/set", new Response.Listener<String>() {
+        StringRequest request = new StringRequest(Request.Method.POST, "http://" + _device.getRealIP() + "/param/set", new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 actionInterface.action(false, response);
@@ -351,8 +382,12 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
     }
 
     private void getParam(final String paramName, final APIActionInterface<String> actionInterface){
+        if(_device.getRealIP() == null){
+           actionInterface.action(true, null);
+           return;
+        }
         RequestQueue queue = Volley.newRequestQueue(this);
-        StringRequest request = new StringRequest(Request.Method.POST, "http://" + _device.getIP() + "/param/get", new Response.Listener<String>() {
+        StringRequest request = new StringRequest(Request.Method.POST, "http://" + _device.getRealIP() + "/param/get", new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 actionInterface.action(false, response);

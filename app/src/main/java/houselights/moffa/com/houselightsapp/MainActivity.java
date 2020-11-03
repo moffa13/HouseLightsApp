@@ -230,33 +230,35 @@ public class MainActivity extends AppCompatActivity {
 
     private void enableAutoFetchState(final IOTDeviceWithGraphics iot){
         removeAllAutoFetch();
-        final Runnable rn = new Runnable() {
-            @Override
-            public void run() {
-                final Runnable rrr = this;
-                setConnectedState(iot, new ActionInterface() {
-                    @Override
-                    public void action(boolean error) {
-                    if(!error)
-                        checkRealState(iot, new ActionInterface() {
-                            @Override
-                            public void action(boolean error_real_state) {
+        if(iot.getRealIP() != null){
+            final Runnable rn = new Runnable() {
+                @Override
+                public void run() {
+                    final Runnable rrr = this;
+                    setConnectedState(iot, new ActionInterface() {
+                        @Override
+                        public void action(boolean error) {
+                            if(!error)
+                                checkRealState(iot, new ActionInterface() {
+                                    @Override
+                                    public void action(boolean error_real_state) {
+                                        _handler.postDelayed(rrr, LIGHT_STATE_UPDATE_INTERVAL);
+                                    }
+                                });
+                            else
                                 _handler.postDelayed(rrr, LIGHT_STATE_UPDATE_INTERVAL);
-                            }
-                        });
-                    else
-                        _handler.postDelayed(rrr, LIGHT_STATE_UPDATE_INTERVAL);
-                    }
-                });
+                        }
+                    });
 
-            }
-        };
-        rn.run();
+                }
+            };
+            rn.run();
+        }
     }
 
     private void setConnectedState(final IOTDeviceWithGraphics device, final ActionInterface ii){
         RequestQueue queue = Volley.newRequestQueue(this);
-        queue.add(new StringRequest(Request.Method.GET, "http://" + device.getIP() + "/get", new Response.Listener<String>() {
+        queue.add(new StringRequest(Request.Method.GET, "http://" + device.getRealIP() + "/get", new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 triggerConnected(device);
@@ -328,7 +330,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void checkRealState(final IOTDeviceWithGraphics device, final ActionInterface ii){
         RequestQueue queue = Volley.newRequestQueue(this);
-        queue.add(new StringRequest(Request.Method.POST, "http://" + device.getIP() + "/get_real", new Response.Listener<String>() {
+        queue.add(new StringRequest(Request.Method.POST, "http://" + device.getRealIP() + "/get_real", new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 triggerConnected(device);
@@ -352,7 +354,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void request(final IOTDeviceWithGraphics device, final int value){
         RequestQueue queue = Volley.newRequestQueue(this);
-        queue.add(new StringRequest(Request.Method.POST, "http://" + device.getIP() + "/set", new Response.Listener<String>() {
+        queue.add(new StringRequest(Request.Method.POST, "http://" + device.getRealIP() + "/set", new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 triggerConnected(device);
