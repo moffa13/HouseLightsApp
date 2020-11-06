@@ -28,7 +28,9 @@ import java.util.Map;
 
 public class IOTDeviceParamsActivity extends AppCompatActivity {
 
+    private static final int TIME_PARAM_FETCH_ERROR_RETRIEVE_S = 1;
     private IOTDevice _device;
+    private Handler _handler;
 
     private EditText deviceName;
     private EditText deviceIp;
@@ -77,6 +79,8 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
         _device = (IOTDevice)getIntent().getExtras().getSerializable("device");
         if(_device == null)
             finish();
+
+        _handler = new Handler();
 
         deviceName = findViewById(R.id.deviceName);
         deviceIp = findViewById(R.id.deviceIp);
@@ -180,7 +184,7 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
         deviceName.setText(_device.getName());
         deviceIp.setText(_device.getIP());
 
-        CallbackHandler<String> handler = new CallbackHandler<>();
+        final CallbackHandler<String> handler = new CallbackHandler<>();
         handler.registerCallback(new Callback() {
             @Override
             public void run(final ActionInterface ai) {
@@ -258,8 +262,19 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
         }).run(new ActionInterface() {
             @Override
             public void action(boolean error) {
-                if(error)
+                if(error) {
                     Toast.makeText(getApplicationContext(), "Error retrieving parameters", Toast.LENGTH_SHORT).show();
+
+                    handler.reset();
+                    final ActionInterface ai = this;
+                    _handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            handler.run(ai);
+                        }
+                    }, TIME_PARAM_FETCH_ERROR_RETRIEVE_S * 1000);
+                }
             }
         });
 
@@ -277,16 +292,19 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
     }
 
     private void registerUpdate(final String param, NumberPicker toRegister, final NumberPicker hours, final NumberPicker minutes, final NumberPicker seconds){
-        toRegister.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+        toRegister.setOnScrollListener(new NumberPicker.OnScrollListener() {
             @Override
-            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                int secondsInt = hours.getValue() * 3600 + minutes.getValue() * 60 + seconds.getValue();
-                setParam(param, secondsInt);
+            public void onScrollStateChange(NumberPicker view, int scrollState) {
+                if(scrollState == SCROLL_STATE_IDLE) {
+                    int secondsInt = hours.getValue() * 3600 + minutes.getValue() * 60 + seconds.getValue();
+                    setParam(param, secondsInt);
+                }
             }
         });
     }
 
     private void registerUpdate(final String param, Spinner toRegister, final NumberPicker hours, final NumberPicker minutes, final NumberPicker seconds){
+        toRegister.setSelection(0,false); // No param set with 0 value.
         toRegister.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id){
@@ -310,6 +328,8 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
             public void action(boolean error, String s) {
                 if(error){
                     Toast.makeText(getApplicationContext(), "Error settings parameter " + name, Toast.LENGTH_SHORT).show();
+                }else {
+                    Toast.makeText(getApplicationContext(), "Value set ( " + name + " )", Toast.LENGTH_SHORT).show();
                 }
             }
         });

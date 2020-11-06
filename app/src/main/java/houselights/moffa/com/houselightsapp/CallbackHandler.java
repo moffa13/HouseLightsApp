@@ -13,6 +13,8 @@ interface ActionInterface {
 
 public class CallbackHandler<T> {
 
+    private int _i = 0;
+
     private ArrayList<Callback> _callbacks = new ArrayList<>();
     public CallbackHandler(){
 
@@ -23,13 +25,22 @@ public class CallbackHandler<T> {
         return this;
     }
 
+    public void reset(){
+        _i = 0;
+    }
+
+    public void stop(){
+        reset();
+        _callbacks.clear();
+    }
+
     public void run(final ActionInterface ai){
-        Callback callback = _callbacks.remove(0);
+        Callback callback = _callbacks.get(_i++);
         callback.run(new ActionInterface() {
             @Override
             public void action(boolean error) {
                 if(!error){
-                    if(!_callbacks.isEmpty())
+                    if(_i < _callbacks.size())
                         run(ai);
                     else
                         ai.action(false);

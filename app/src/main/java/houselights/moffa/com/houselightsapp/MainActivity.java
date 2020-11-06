@@ -35,7 +35,7 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int LIGHT_STATE_UPDATE_INTERVAL = 10000;
+    private static final int LIGHT_STATE_UPDATE_INTERVAL = 3000;
     private boolean _paused = false;
     private final Handler _handler;
     private ArrayList<IOTDeviceWithGraphics> _iots;
