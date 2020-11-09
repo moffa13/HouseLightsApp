@@ -31,6 +31,7 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
     private static final int TIME_PARAM_FETCH_ERROR_RETRIEVE_S = 1;
     private IOTDevice _device;
     private Handler _handler;
+    private Handler _uiHandler;
 
     private EditText deviceName;
     private EditText deviceIp;
@@ -72,6 +73,110 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause(){
+        super.onPause();
+        _handler.removeCallbacksAndMessages(null);
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        final CallbackHandler<String> handler = new CallbackHandler<>();
+        handler.registerCallback(new Callback() {
+            @Override
+            public void run(final ActionInterface ai) {
+                getParam("sunset_warn", new APIActionInterface<String>() {
+                    @Override
+                    public void action(boolean error, final String response) {
+
+                        if(!error){
+                            int value = 0;
+                            if(response.indexOf("-") != -1){
+                                paramSunsetWarnBeforeAfter.setSelection(1); // After because number is negative
+                                value = Integer.parseInt(response.substring(1));
+                            }else{
+                                paramSunsetWarnBeforeAfter.setSelection(0);
+                                value = Integer.parseInt(response);
+                            }
+                            adjustNumberPickerWithSpinner(paramSunsetWarnValueMain, paramSunsetWarnValueSub, paramSunsetWarnValueSubSub, value);
+                        }
+                        ai.action(error);
+                    }
+                });
+            }
+        }).registerCallback(new Callback() {
+            @Override
+            public void run(final ActionInterface ai) {
+                getParam("power_min", new APIActionInterface<String>() {
+                    @Override
+                    public void action(boolean error, final String response) {
+                        if(!error){
+                            adjustNumberPickerWithSpinner(paramPowerMinValueMain, paramPowerMinValueSub, paramPowerMinValueSubSub, Integer.parseInt(response));
+                        }
+                        ai.action(error);
+                    }
+                });
+            }
+        }).registerCallback(new Callback() {
+            @Override
+            public void run(final ActionInterface ai) {
+                getParam("power_max", new APIActionInterface<String>() {
+                    @Override
+                    public void action(boolean error, String response) {
+                        if(!error){
+                            adjustNumberPickerWithSpinner(paramPowerMaxValueMain, paramPowerMaxValueSub, paramPowerMaxValueSubSub, Integer.parseInt(response));
+                        }
+                        ai.action(error);
+                    }
+                });
+            }
+        }).registerCallback(new Callback() {
+            @Override
+            public void run(final ActionInterface ai) {
+                getParam("power_morning_min", new APIActionInterface<String>() {
+                    @Override
+                    public void action(boolean error, String response) {
+                        if(!error){
+                            adjustNumberPickerWithSpinner(paramPowerMorningMinValueMain, paramPowerMorningMinValueSub, paramPowerMorningMinValueSubSub, Integer.parseInt(response));
+                        }
+                        ai.action(error);
+                    }
+                });
+            }
+        }).registerCallback(new Callback() {
+            @Override
+            public void run(final ActionInterface ai) {
+                getParam("google_api_key", new APIActionInterface<String>() {
+                    @Override
+                    public void action(boolean error, String response) {
+                        if(!error){
+                            apiKey.setText(response);
+                        }
+                        ai.action(error);
+                    }
+                });
+            }
+        }).run(new ActionInterface() {
+            @Override
+            public void action(boolean error) {
+                if(error) {
+                    Toast.makeText(getApplicationContext(), "Error retrieving parameters", Toast.LENGTH_SHORT).show();
+
+                    handler.reset();
+                    final ActionInterface ai = this;
+                    _handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            handler.run(ai);
+                        }
+                    }, TIME_PARAM_FETCH_ERROR_RETRIEVE_S * 1000);
+                }
+            }
+        });
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_iotdevice_params);
@@ -81,6 +186,7 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
             finish();
 
         _handler = new Handler();
+        _uiHandler = new Handler();
 
         deviceName = findViewById(R.id.deviceName);
         deviceIp = findViewById(R.id.deviceIp);
@@ -184,101 +290,6 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
         deviceName.setText(_device.getName());
         deviceIp.setText(_device.getIP());
 
-        final CallbackHandler<String> handler = new CallbackHandler<>();
-        handler.registerCallback(new Callback() {
-            @Override
-            public void run(final ActionInterface ai) {
-                getParam("sunset_warn", new APIActionInterface<String>() {
-                    @Override
-                    public void action(boolean error, final String response) {
-
-                        if(!error){
-                            int value = 0;
-                            if(response.indexOf("-") != -1){
-                                paramSunsetWarnBeforeAfter.setSelection(1); // After because number is negative
-                                value = Integer.parseInt(response.substring(1));
-                            }else{
-                                paramSunsetWarnBeforeAfter.setSelection(0);
-                                value = Integer.parseInt(response);
-                            }
-                            adjustNumberPickerWithSpinner(paramSunsetWarnValueMain, paramSunsetWarnValueSub, paramSunsetWarnValueSubSub, value);
-                        }
-                        ai.action(error);
-                    }
-                });
-            }
-        }).registerCallback(new Callback() {
-            @Override
-            public void run(final ActionInterface ai) {
-                getParam("power_min", new APIActionInterface<String>() {
-                    @Override
-                    public void action(boolean error, final String response) {
-                        if(!error){
-                            adjustNumberPickerWithSpinner(paramPowerMinValueMain, paramPowerMinValueSub, paramPowerMinValueSubSub, Integer.parseInt(response));
-                        }
-                        ai.action(error);
-                    }
-                });
-            }
-        }).registerCallback(new Callback() {
-            @Override
-            public void run(final ActionInterface ai) {
-                getParam("power_max", new APIActionInterface<String>() {
-                    @Override
-                    public void action(boolean error, String response) {
-                        if(!error){
-                            adjustNumberPickerWithSpinner(paramPowerMaxValueMain, paramPowerMaxValueSub, paramPowerMaxValueSubSub, Integer.parseInt(response));
-                        }
-                        ai.action(error);
-                    }
-                });
-            }
-        }).registerCallback(new Callback() {
-            @Override
-            public void run(final ActionInterface ai) {
-                getParam("power_morning_min", new APIActionInterface<String>() {
-                    @Override
-                    public void action(boolean error, String response) {
-                        if(!error){
-                            adjustNumberPickerWithSpinner(paramPowerMorningMinValueMain, paramPowerMorningMinValueSub, paramPowerMorningMinValueSubSub, Integer.parseInt(response));
-                        }
-                        ai.action(error);
-                    }
-                });
-            }
-        }).registerCallback(new Callback() {
-            @Override
-            public void run(final ActionInterface ai) {
-                getParam("google_api_key", new APIActionInterface<String>() {
-                    @Override
-                    public void action(boolean error, String response) {
-                        if(!error){
-                            apiKey.setText(response);
-                        }
-                        ai.action(error);
-                    }
-                });
-            }
-        }).run(new ActionInterface() {
-            @Override
-            public void action(boolean error) {
-                if(error) {
-                    Toast.makeText(getApplicationContext(), "Error retrieving parameters", Toast.LENGTH_SHORT).show();
-
-                    handler.reset();
-                    final ActionInterface ai = this;
-                    _handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            handler.run(ai);
-                        }
-                    }, TIME_PARAM_FETCH_ERROR_RETRIEVE_S * 1000);
-                }
-            }
-        });
-
-
     }
 
     private static void setPickerMaxLimits(NumberPicker picker, TimeType selection){
@@ -292,13 +303,18 @@ public class IOTDeviceParamsActivity extends AppCompatActivity {
     }
 
     private void registerUpdate(final String param, NumberPicker toRegister, final NumberPicker hours, final NumberPicker minutes, final NumberPicker seconds){
-        toRegister.setOnScrollListener(new NumberPicker.OnScrollListener() {
+        toRegister.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
-            public void onScrollStateChange(NumberPicker view, int scrollState) {
-                if(scrollState == SCROLL_STATE_IDLE) {
-                    int secondsInt = hours.getValue() * 3600 + minutes.getValue() * 60 + seconds.getValue();
-                    setParam(param, secondsInt);
-                }
+            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                    Runnable updCode = new Runnable() {
+                        @Override
+                        public void run() {
+                            int secondsInt = hours.getValue() * 3600 + minutes.getValue() * 60 + seconds.getValue();
+                            setParam(param, secondsInt);
+                        }
+                    };
+                    _uiHandler.removeCallbacksAndMessages(null);
+                    _uiHandler.postDelayed(updCode, 500);
             }
         });
     }
